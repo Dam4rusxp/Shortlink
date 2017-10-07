@@ -1,0 +1,5 @@
+{
+    "match": "^https://www\\.youtube\\.com/watch\\?.*$",
+    "include": ["v=","t=", "lc="],
+    "exclude": ["t=0s"]
+}

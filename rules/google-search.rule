@@ -1,0 +1,4 @@
+{
+    "match": "^https://(www\\.)?google\\.\\w{2,3}/search\\?.*$",
+    "include": ["q="]
+}

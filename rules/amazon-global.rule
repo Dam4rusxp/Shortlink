@@ -1,0 +1,4 @@
+{
+    "match": "^https://www\\.amazon\\.\\w{2,3}/.*$",
+    "exclude": ["/ref="]
+}
