@@ -37,30 +37,39 @@ public class LinkQuickwindow extends JFrame {
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
-        // Using KeyboardFocusManager instead of KeyListener allows focus-independent shortcuts
-        KeyboardFocusManager keyman = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        keyman.addKeyEventDispatcher(e -> {
-            switch (e.getKeyCode()) {
-                case KeyEvent.VK_ESCAPE:
-                    goAway();
-                    return true;
+        // Set frame-global shortcuts using KeyBinding API 
+        InputMap inputMap = tfLink.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = tfLink.getActionMap();
 
-                case KeyEvent.VK_C:
-                    if ((e.getModifiers() & KeyEvent.CTRL_MASK) != 0) {
-                        Shortlink.lastClipboard = tfLink.getText();
-                        StringSelection selection = new StringSelection(tfLink.getText());
-                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
-                        goAway();
-                    }
-                    return true;
-
-                case KeyEvent.VK_Q:
-                    System.exit(0);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "goaway");
+        actionMap.put("goaway", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                goAway();
             }
-
-            return false;
         });
 
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK), "copy");
+        actionMap.put("copy", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Copy action!");
+                Shortlink.lastClipboard = tfLink.getText();
+                StringSelection selection = new StringSelection(tfLink.getText());
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
+                goAway();
+            }
+        });
+
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, 0), "quit");
+        actionMap.put("quit", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        // Hide the window quickly, when the user is not interested e.g. clicks outside
         addWindowFocusListener(new WindowAdapter() {
             @Override
             public void windowLostFocus(WindowEvent e) {
