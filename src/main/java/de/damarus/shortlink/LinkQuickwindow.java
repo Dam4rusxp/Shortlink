@@ -53,7 +53,6 @@ public class LinkQuickwindow extends JFrame {
         actionMap.put("copy", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Copy action!");
                 Shortlink.lastClipboard = tfLink.getText();
                 StringSelection selection = new StringSelection(tfLink.getText());
                 Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
