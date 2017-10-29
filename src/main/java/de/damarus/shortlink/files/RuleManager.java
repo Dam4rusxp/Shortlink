@@ -1,5 +1,6 @@
 package de.damarus.shortlink.files;
 
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.damarus.shortlink.ModifieableLink;
@@ -7,13 +8,41 @@ import de.damarus.shortlink.ModifieableLink.UrlParameter;
 import de.damarus.shortlink.ModifieableLink.UrlPathSegment;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class RuleManager {
+
+    public static ModifieableLink applyRulesTo(ModifieableLink link) {
+        String sourceString = link.getSource().toString();
+
+        // For every rulefile
+        for (RuleFile rules : ruleFiles.values()) {
+            // If the link matches the pattern
+            if (sourceString.matches(rules.getPattern())) {
+
+                if (Strings.isNullOrEmpty(rules.getReplace())) {
+                    // For every query parameter of the link
+                    applyIncludeExclude(link, rules);
+                } else {
+                    try {
+                        link = applyReplace(link, rules);
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        return link;
+    }
 
     private static Gson gson;
     private static HashMap<String, RuleFile> ruleFiles = new HashMap<>();
@@ -43,60 +72,80 @@ public class RuleManager {
         return gson;
     }
 
-    public static void applyRulesTo(ModifieableLink link) {
-        String sourceString = link.getSource().toString();
+    private static void applyIncludeExclude(ModifieableLink link, RuleFile rules) {
+        for (UrlParameter param : link.getParameters()) {
+            boolean include = param.isEnabled();
 
-        // For every rulefile
-        for (RuleFile rules : ruleFiles.values()) {
-            // If the link matches the pattern
-            if (sourceString.matches(rules.getPattern())) {
-                // For every query parameter of the link
-                for (UrlParameter param : link.getParameters()) {
-                    boolean include = param.isEnabled();
+            // Check if a rule includes the parameter
+            for (String incRule : rules.getInclude()) {
+                // Skip if this is not a query parameter rule
+                if (incRule.startsWith("/") || !incRule.contains("=")) continue;
 
-                    // Check if a rule includes the parameter
-                    for (String incRule : rules.getInclude()) {
-                        // Skip if this is not a query parameter rule
-                        if (incRule.startsWith("/") || !incRule.contains("=")) continue;
-
-                        if (param.toString().startsWith(incRule)) {
-                            include = true;
-                            break;
-                        }
-                    }
-
-                    // Check if there is a rule excluding the parameter, which overrides include
-                    for (String excRule : rules.getExclude()) {
-                        // Skip if this is not a query parameter rule
-                        if (excRule.startsWith("/") || !excRule.contains("=")) continue;
-
-                        if (param.toString().startsWith(excRule)) {
-                            include = false;
-                            break;
-                        }
-                    }
-
-                    param.setEnabled(include);
-                }
-
-                // For every path segment in the link
-                for (UrlPathSegment segment : link.getPathSegments()) {
-                    boolean include = segment.isEnabled();
-
-                    for (String excRule : rules.getExclude()) {
-                        // Skip if this is not a path segment rule
-                        if (!excRule.startsWith("/")) continue;
-
-                        if (segment.toString().startsWith(excRule)) {
-                            include = false;
-                            break;
-                        }
-                    }
-
-                    segment.setEnabled(include);
+                if (param.toString().startsWith(incRule)) {
+                    include = true;
+                    break;
                 }
             }
+
+            // Check if there is a rule excluding the parameter, which overrides include
+            for (String excRule : rules.getExclude()) {
+                // Skip if this is not a query parameter rule
+                if (excRule.startsWith("/") || !excRule.contains("=")) continue;
+
+                if (param.toString().startsWith(excRule)) {
+                    include = false;
+                    break;
+                }
+            }
+
+            param.setEnabled(include);
         }
+
+        // For every path segment in the link
+        for (UrlPathSegment segment : link.getPathSegments()) {
+            boolean include = segment.isEnabled();
+
+            for (String excRule : rules.getExclude()) {
+                // Skip if this is not a path segment rule
+                if (!excRule.startsWith("/")) continue;
+
+                if (segment.toString().startsWith(excRule)) {
+                    include = false;
+                    break;
+                }
+            }
+
+            segment.setEnabled(include);
+        }
+    }
+
+    private static ModifieableLink applyReplace(ModifieableLink link, RuleFile rules) throws MalformedURLException {
+        Pattern pattern = Pattern.compile(rules.getPattern());
+        Matcher matcher = pattern.matcher(link.getSource().toString());
+
+        matcher.find();
+
+        String newString = matcher.replaceAll(rules.getReplace());
+        ModifieableLink newLink = ModifieableLink.fromURL(new URL(newString));
+
+        return newLink;
+    }
+
+    public enum ShorteningMethod {
+        /**
+         * Don't use rules at all, and keep defaults
+         */
+        NONE,
+
+        /**
+         * Use include and exclude lists
+         */
+        SIMPLE,
+
+        /**
+         * Use capture groups and replacement string
+         */
+        REWRITE
     }
 
     public static void loadAllRulesFromDisk(boolean silent) throws IOException {

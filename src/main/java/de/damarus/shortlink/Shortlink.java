@@ -1,24 +1,19 @@
 package de.damarus.shortlink;
 
 import de.damarus.shortlink.files.RuleManager;
+import de.damarus.shortlink.front.LinkQuickwindow;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 
-public class Shortlink extends JFrame {
+public class Shortlink {
 
     public static String lastClipboard;
-    private static LinkQuickwindow displayWindow;
 
     public static void main(String[] args) {
         try {
-            RuleManager.loadAllRulesFromDisk();
+            RuleManager.loadAllRulesFromDisk(false);
         } catch (IOException e) {
             System.err.println("Could not access rules/ directory, exiting...");
             e.printStackTrace();
@@ -27,11 +22,11 @@ public class Shortlink extends JFrame {
 
         while (true) {
             try {
-                String clipboard = getStringClipboard();
+                String clipboard = Util.getStringClipboard();
                 if (clipboard != null && !clipboard.equals(lastClipboard)) {
                     lastClipboard = clipboard;
 
-                    if (isLink(clipboard)) {
+                    if (Util.isLink(clipboard)) {
                         System.out.println("Handling link: " + clipboard);
                         handleNewLink(clipboard);
                     }
@@ -46,20 +41,6 @@ public class Shortlink extends JFrame {
                 }
             }
         }
-
-    }
-
-    private static String getStringClipboard() {
-        DataFlavor[] currentFlavors = Toolkit.getDefaultToolkit().getSystemClipboard().getAvailableDataFlavors();
-        if (Arrays.stream(currentFlavors).anyMatch(DataFlavor::isFlavorTextType)) {
-            try {
-                return (String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor);
-            } catch (UnsupportedFlavorException | IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return null;
     }
 
     private static void handleNewLink(String clipboard) throws MalformedURLException {
@@ -68,27 +49,22 @@ public class Shortlink extends JFrame {
         // Don't be annoying when the link can't be changed anyways
         if (link.isActuallyModifieable()) {
             String beforeRules = link.toString();
-            RuleManager.applyRulesTo(link);
+            link = RuleManager.applyRulesTo(link);
 
             // Display the window if we can modify parameters, or the path changed
             // That means we don't find fragments annoying enough to show the window
             if (!link.getParameters().isEmpty() || !beforeRules.equals(link.toString())) {
+                // Old Swing window
                 getWindow().displayLink(link);
+
+                // New JavaFX window
+//                Application.launch(QuickwindowApplication.class, String.valueOf(link));
             }
         }
     }
 
-    private static boolean isLink(String clipboard) {
-        try {
-            new URL(clipboard);
-            return true;
-        } catch (MalformedURLException e) {
-            return false;
-        }
-    }
-
     public static LinkQuickwindow getWindow() {
-        if (displayWindow == null) displayWindow = new LinkQuickwindow();
-        return displayWindow;
+        // We can't reuse the frames because Windows will temporarily block listeners when they reappear
+        return new LinkQuickwindow();
     }
 }

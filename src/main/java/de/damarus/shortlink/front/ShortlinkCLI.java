@@ -46,13 +46,14 @@ public class ShortlinkCLI {
             System.out.println("Loading rule files.\n");
             RuleManager.loadAllRulesFromDisk(true);
             ModifieableLink mLink = ModifieableLink.fromURL(new URL(link));
-            RuleManager.applyRulesTo(mLink);
 
             System.out.println("Parameters:");
 
             for (UrlParameter param : mLink.getParameters()) {
                 System.out.println(String.format("%10s=%s", param.getKey(), param.getValue()));
             }
+           
+            mLink = RuleManager.applyRulesTo(mLink);
 
             System.out.println("\nShortened link:");
             System.out.println(mLink.toString());

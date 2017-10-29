@@ -18,11 +18,13 @@ public class RuleFile {
      */
     private List<String> exclude = new ArrayList<>();
 
+    private String replace;
+
     public String getPattern() {
         return match;
     }
 
-    public void setMatch(String match) {
+    public void setPattern(String match) {
         this.match = match;
     }
 
@@ -40,5 +42,13 @@ public class RuleFile {
 
     public void setExclude(List<String> exclude) {
         this.exclude = exclude;
+    }
+
+    public String getReplace() {
+        return replace;
+    }
+
+    public void setReplace(String replace) {
+        this.replace = replace;
     }
 }

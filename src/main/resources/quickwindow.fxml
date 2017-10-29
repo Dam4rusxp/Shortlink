@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/8.0.121" fx:controller="de.damarus.shortlink.front.QuickwindowFX">
+    <BorderPane>
+        <bottom>
+            <FlowPane BorderPane.alignment="CENTER"/>
+        </bottom>
+        <center>
+            <TextField fx:id="txtLink" editable="false" promptText="Output Link" BorderPane.alignment="CENTER"
+                       prefWidth="400.0"/>
+        </center>
+    </BorderPane>
+
+</AnchorPane>
