@@ -99,7 +99,7 @@ public class RuleManager {
         }
     }
 
-    public static void loadAllRulesFromDisk() throws IOException {
+    public static void loadAllRulesFromDisk(boolean silent) throws IOException {
         Path dir = Paths.get("rules");
         if (!Files.exists(dir)) {
             Files.createDirectory(dir);
@@ -108,7 +108,7 @@ public class RuleManager {
         DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.rule");
         stream.forEach(p -> {
             try {
-                loadRuleFile(p);
+                loadRuleFile(p, silent);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -116,11 +116,13 @@ public class RuleManager {
 
     }
 
-    public static RuleFile loadRuleFile(Path file) throws IOException {
+    public static RuleFile loadRuleFile(Path file, boolean silent) throws IOException {
         if (file == null) throw new NullPointerException();
         if (!Files.exists(file)) throw new IOException("File does not exist");
 
-        System.out.println("Reading rule file: " + file.toString());
+        if (!silent) {
+            System.out.println("Reading rule file: " + file.toString());
+        }
 
         String json = new String(Files.readAllBytes(file));
         Gson gson = getGson();

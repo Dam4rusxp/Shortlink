@@ -1,4 +1,7 @@
-package de.damarus.shortlink;
+package de.damarus.shortlink.front;
+
+import de.damarus.shortlink.ModifieableLink;
+import de.damarus.shortlink.Shortlink;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,9 +38,23 @@ public class LinkQuickwindow extends JFrame {
         paramPanel.setLayout(new FlowLayout());
         add(paramPanel);
 
-        setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         // Set frame-global shortcuts using KeyBinding API 
+        initKeyBindings();
+
+        // Hide the window quickly, when the user is not interested e.g. clicks outside
+        addWindowFocusListener(new WindowAdapter() {
+            @Override
+            public void windowLostFocus(WindowEvent e) {
+                goAway();
+            }
+        });
+
+        setMaximumSize(new Dimension(500, 1000));
+    }
+
+    private void initKeyBindings() {
         InputMap inputMap = tfLink.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = tfLink.getActionMap();
 
@@ -65,14 +82,6 @@ public class LinkQuickwindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);
-            }
-        });
-
-        // Hide the window quickly, when the user is not interested e.g. clicks outside
-        addWindowFocusListener(new WindowAdapter() {
-            @Override
-            public void windowLostFocus(WindowEvent e) {
-                goAway();
             }
         });
     }
@@ -107,7 +116,7 @@ public class LinkQuickwindow extends JFrame {
             paramPanel.add(cBox);
         }
         pack();
-        setSize(500, getHeight());
+//        setSize(500, getHeight());
 
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(getGraphicsConfiguration());
         setLocation(insets.left + 25, 25);
