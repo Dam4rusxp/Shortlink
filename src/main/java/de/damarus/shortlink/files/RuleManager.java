@@ -1,11 +1,11 @@
 package de.damarus.shortlink.files;
 
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.damarus.shortlink.ModifieableLink;
 import de.damarus.shortlink.ModifieableLink.UrlParameter;
 import de.damarus.shortlink.ModifieableLink.UrlPathSegment;
+import de.damarus.shortlink.UrlPattern;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -15,34 +15,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Map;
 
 public class RuleManager {
-
-    public static ModifieableLink applyRulesTo(ModifieableLink link) {
-        String sourceString = link.getSource().toString();
-
-        // For every rulefile
-        for (RuleFile rules : ruleFiles.values()) {
-            // If the link matches the pattern
-            if (sourceString.matches(rules.getPattern())) {
-
-                if (Strings.isNullOrEmpty(rules.getReplace())) {
-                    // For every query parameter of the link
-                    applyIncludeExclude(link, rules);
-                } else {
-                    try {
-                        link = applyReplace(link, rules);
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        return link;
-    }
 
     private static Gson gson;
     private static HashMap<String, RuleFile> ruleFiles = new HashMap<>();
@@ -70,6 +45,29 @@ public class RuleManager {
     private static Gson getGson() {
         if (gson == null) gson = new GsonBuilder().disableHtmlEscaping().create();
         return gson;
+    }
+
+    public static ModifieableLink applyRulesTo(ModifieableLink link) {
+        // For every rulefile
+        for (RuleFile rules : ruleFiles.values()) {
+            Map<String, String> match = matchAll(link, rules);
+
+            // If the link matches the pattern
+            if (match != null) {
+
+                if (rules.getReplace() == null) {
+                    applyIncludeExclude(link, rules);
+                } else {
+                    try {
+                        link = applyReplace(rules.getReplace(), match);
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
+        return link;
     }
 
     private static void applyIncludeExclude(ModifieableLink link, RuleFile rules) {
@@ -119,33 +117,27 @@ public class RuleManager {
         }
     }
 
-    private static ModifieableLink applyReplace(ModifieableLink link, RuleFile rules) throws MalformedURLException {
-        Pattern pattern = Pattern.compile(rules.getPattern());
-        Matcher matcher = pattern.matcher(link.getSource().toString());
+    public static Map<String, String> matchAll(ModifieableLink link, RuleFile ruleFile) {
+        URL source = link.getSource();
+        Map<String, String> urlMatch, hostMatch, pathMatch, queryMatch, combined;
 
-        matcher.find();
+        urlMatch = matchOne(source.toString(), ruleFile.getMatch());
+        hostMatch = matchOne(source.getHost(), ruleFile.getMatchHost());
+        pathMatch = matchOne(source.getPath(), ruleFile.getMatchPath());
+        queryMatch = matchOne(source.getQuery(), ruleFile.getMatchQuery());
 
-        String newString = matcher.replaceAll(rules.getReplace());
-        ModifieableLink newLink = ModifieableLink.fromURL(new URL(newString));
+        // If something did not match, return null
+        if (urlMatch == null || hostMatch == null || pathMatch == null || queryMatch == null) {
+            return null;
+        }
 
-        return newLink;
-    }
+        combined = new HashMap<>();
+        combined.putAll(urlMatch);
+        combined.putAll(hostMatch);
+        combined.putAll(pathMatch);
+        combined.putAll(queryMatch);
 
-    public enum ShorteningMethod {
-        /**
-         * Don't use rules at all, and keep defaults
-         */
-        NONE,
-
-        /**
-         * Use include and exclude lists
-         */
-        SIMPLE,
-
-        /**
-         * Use capture groups and replacement string
-         */
-        REWRITE
+        return combined;
     }
 
     public static void loadAllRulesFromDisk(boolean silent) throws IOException {
@@ -162,7 +154,6 @@ public class RuleManager {
                 e.printStackTrace();
             }
         });
-
     }
 
     public static RuleFile loadRuleFile(Path file, boolean silent) throws IOException {
@@ -180,5 +171,24 @@ public class RuleManager {
         ruleFiles.put(file.getFileName().toString(), rule);
 
         return rule;
+    }
+
+    private static ModifieableLink applyReplace(String replacementPattern, Map<String, String> vars) throws MalformedURLException {
+        String target = replacementPattern;
+
+        for (String varName : vars.keySet()) {
+            target = target.replaceAll("\\{" + varName + "}", vars.get(varName));
+        }
+
+        URL newUrl = new URL(target);
+        return ModifieableLink.fromURL(newUrl);
+    }
+
+    private static Map<String, String> matchOne(String input, String[] patterns) {
+        if (patterns != null) {
+            return UrlPattern.extractFirstValid(input, patterns);
+        } else {
+            return new HashMap<>();
+        }
     }
 }

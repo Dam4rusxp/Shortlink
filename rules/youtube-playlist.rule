@@ -1,4 +1,4 @@
 {
-    "match": "^https://www\\.youtube\\.com/playlist\\?.*$",
+    "match": ["https://www.youtube.com/playlist\\?*"],
     "include": ["list="]
 }

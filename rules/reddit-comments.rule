@@ -1,4 +1,4 @@
 {
-    "match": "^https://(\\w+\\.)?reddit\\.com/.*/comments/.*$",
+    "match": ["https://*.reddit.com/*/comments/*"],
     "include": ["context="]
 }

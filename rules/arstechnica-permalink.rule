@@ -1,4 +1,0 @@
-{
-    "match": "^https://arstechnica.com/\\?.*$",
-    "include": ["p="]
-}

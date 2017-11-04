@@ -1,4 +1,4 @@
 {
-    "match": "^https://www\\.amazon\\.\\w{2,3}/s.*$",
+    "match": ["https:*.amazon.*/s/*"],
     "include": ["field-keywords="]
 }

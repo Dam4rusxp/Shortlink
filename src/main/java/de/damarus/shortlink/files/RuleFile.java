@@ -5,7 +5,10 @@ import java.util.List;
 
 public class RuleFile {
 
-    private String match;
+    private String[] match;
+    private String[] matchHost;
+    private String[] matchPath;
+    private String[] matchQuery;
 
     /**
      * Include these elements in the shortened URL. Should be matched against path elements and GET parameters.
@@ -20,12 +23,36 @@ public class RuleFile {
 
     private String replace;
 
-    public String getPattern() {
+    public String[] getMatch() {
         return match;
     }
 
-    public void setPattern(String match) {
+    public void setMatch(String[] match) {
         this.match = match;
+    }
+
+    public String[] getMatchHost() {
+        return matchHost;
+    }
+
+    public void setMatchHost(String[] matchHost) {
+        this.matchHost = matchHost;
+    }
+
+    public String[] getMatchPath() {
+        return matchPath;
+    }
+
+    public void setMatchPath(String[] matchPath) {
+        this.matchPath = matchPath;
+    }
+
+    public String[] getMatchQuery() {
+        return matchQuery;
+    }
+
+    public void setMatchQuery(String[] matchQuery) {
+        this.matchQuery = matchQuery;
     }
 
     public List<String> getInclude() {

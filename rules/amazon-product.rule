@@ -1,4 +1,5 @@
 {
-    "match": "^(https:\\/\\/www\\.amazon\\.\\w{2,3})\\/.*(?:(?:dp)|(?:gp\\/product))\\/([\\w\\d]+).*$",
-    "replace": "$1/dp/$2"
+    "matchHost": ["*.amazon.{tld}"],
+    "matchPath": ["*/dp/{articleId}/*", "*/gp/product/{articleId}/*"],
+    "replace": "https://www.amazon.{tld}/dp/{articleId}"
 }
