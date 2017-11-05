@@ -1,6 +1,7 @@
 package de.damarus.shortlink.files;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class RuleFile {
@@ -24,51 +25,51 @@ public class RuleFile {
     private String replace;
 
     public String[] getMatch() {
-        return match;
+        return match != null ? match.clone() : null;
     }
 
     public void setMatch(String[] match) {
-        this.match = match;
+        this.match = match.clone();
     }
 
     public String[] getMatchHost() {
-        return matchHost;
+        return matchHost != null ? matchHost.clone() : null;
     }
 
     public void setMatchHost(String[] matchHost) {
-        this.matchHost = matchHost;
+        this.matchHost = matchHost.clone();
     }
 
     public String[] getMatchPath() {
-        return matchPath;
+        return matchPath != null ? matchPath.clone() : null;
     }
 
     public void setMatchPath(String[] matchPath) {
-        this.matchPath = matchPath;
+        this.matchPath = matchPath.clone();
     }
 
     public String[] getMatchQuery() {
-        return matchQuery;
+        return matchQuery != null ? matchQuery.clone() : null;
     }
 
     public void setMatchQuery(String[] matchQuery) {
-        this.matchQuery = matchQuery;
+        this.matchQuery = matchQuery.clone();
     }
 
     public List<String> getInclude() {
-        return include;
+        return include != null ? Collections.unmodifiableList(include) : null;
     }
 
     public void setInclude(List<String> include) {
-        this.include = include;
+        this.include = new ArrayList<>(include);
     }
 
     public List<String> getExclude() {
-        return exclude;
+        return exclude != null ? Collections.unmodifiableList(exclude) : null;
     }
 
     public void setExclude(List<String> exclude) {
-        this.exclude = exclude;
+        this.exclude = new ArrayList<>(exclude);
     }
 
     public String getReplace() {

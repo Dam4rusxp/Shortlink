@@ -10,12 +10,14 @@ import de.damarus.shortlink.UrlPattern;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class RuleManager {
 
@@ -37,7 +39,7 @@ public class RuleManager {
         Gson gson = getGson();
         String json = gson.toJson(ruleFiles.get(ruleName));
         Path target = Paths.get("rules", ruleName + ".rule");
-        Files.write(target, json.getBytes());
+        Files.write(target, json.getBytes(StandardCharsets.UTF_8));
 
         return target;
     }
@@ -164,11 +166,12 @@ public class RuleManager {
             System.out.println("Reading rule file: " + file.toString());
         }
 
-        String json = new String(Files.readAllBytes(file));
+        String json = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
         Gson gson = getGson();
 
         RuleFile rule = gson.fromJson(json, RuleFile.class);
-        ruleFiles.put(file.getFileName().toString(), rule);
+        Path filename = file.getFileName();
+        if (rule != null && filename != null) ruleFiles.put(filename.toString(), rule);
 
         return rule;
     }
@@ -176,8 +179,8 @@ public class RuleManager {
     private static ModifieableLink applyReplace(String replacementPattern, Map<String, String> vars) throws MalformedURLException {
         String target = replacementPattern;
 
-        for (String varName : vars.keySet()) {
-            target = target.replaceAll("\\{" + varName + "}", vars.get(varName));
+        for (Entry<String, String> entry : vars.entrySet()) {
+            target = target.replaceAll("\\{" + entry.getKey() + "}", entry.getValue());
         }
 
         URL newUrl = new URL(target);

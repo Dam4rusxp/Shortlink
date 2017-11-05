@@ -12,16 +12,14 @@ import static org.junit.Assert.assertEquals;
 
 public class ShorteningTests {
 
-    public static final String[][] links = new String[][]{{
+    private final String[][] links = new String[][]{{
             // aliexpress-search.rule
             "https://www.aliexpress.com/wholesale?initiative_id=SB_20171104175917&site=glo&g=y&SearchText=mmcx+cable&page=2",
             "https://www.aliexpress.com/wholesale?SearchText=mmcx+cable&page=2"
-    }, {
-            // amazon-global.rule
+    }, {   // amazon-global.rule
             "https://www.amazon.co.uk/gp/yourstore/home/ref=nav_cs_ys",
             "https://www.amazon.co.uk/gp/yourstore/home"
-    }, {
-            // amazon-product.rule
+    }, {   // amazon-product.rule
             "https://www.amazon.de/Comply-Memory-Schaum-Kopfh%C3%B6rer-Ohrst%C3%B6psel-Schwarz/dp/B002NUJ2RM/ref=sr_1_2?ie=UTF8&qid=1509294034&sr=8-2&keywords=comply",
             "https://www.amazon.de/dp/B002NUJ2RM"
     }, {    // amazon-search.rule
@@ -50,7 +48,7 @@ public class ShorteningTests {
     }
 
     @Test
-    public void CheckExampleLinks() throws MalformedURLException {
+    public void checkExampleLinks() throws MalformedURLException {
         for (String[] link : links) {
             System.out.print(String.format("\rChecking link: %s", link[0]));
 

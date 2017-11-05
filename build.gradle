@@ -12,6 +12,7 @@ buildscript {
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'distribution'
+apply plugin: 'findbugs'
 
 group 'de.damarus'
 version '0.2-SNAPSHOT'
@@ -47,5 +48,16 @@ jar {
         attributes (
             "Main-Class": "de.damarus.shortlink.Shortlink"
         )
+    }
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        showProgress = true
+        ignoreFailures = true
+        
+        xml.enabled false
+        html.enabled true
+        html.stylesheet resources.text.fromFile('extra/color.xsl')
     }
 }

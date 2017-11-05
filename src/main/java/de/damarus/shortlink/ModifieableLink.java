@@ -14,7 +14,6 @@ public class ModifieableLink {
     private String protocol;
     private String host;
     private int port = -1;
-    private String path;
     private String fragment;
 
     private List<UrlPathSegment> pathSegments = new ArrayList<>();
@@ -151,7 +150,7 @@ public class ModifieableLink {
         return sourceUrl;
     }
 
-    public class UrlPathSegment {
+    public static class UrlPathSegment {
 
         private String segment;
         private boolean enabled;
@@ -177,7 +176,7 @@ public class ModifieableLink {
         }
     }
 
-    public class UrlParameter {
+    public static class UrlParameter {
 
         private String key;
         private String value;
