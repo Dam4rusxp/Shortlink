@@ -48,12 +48,11 @@ public class Shortlink {
 
         // Don't be annoying when the link can't be changed anyways
         if (link.isActuallyModifieable()) {
-            String beforeRules = link.toString();
             link = RuleManager.applyRulesTo(link);
 
-            // Display the window if we can modify parameters, or the path changed
+            // Display the window if we can modify parameters, or the link was changed otherwise
             // That means we don't find fragments annoying enough to show the window
-            if (!link.getParameters().isEmpty() || !beforeRules.equals(link.toString())) {
+            if (!link.getParameters().isEmpty() || !clipboard.equals(link.toString())) {
                 // Old Swing window
                 getWindow().displayLink(link);
 

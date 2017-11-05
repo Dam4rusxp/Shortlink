@@ -1,0 +1,4 @@
+{
+    "match": ["https://www.aliexpress.com/wholesale?*"],
+    "include": ["SearchText=", "page="]
+}

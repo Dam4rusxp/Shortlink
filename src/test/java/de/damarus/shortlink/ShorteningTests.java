@@ -13,6 +13,10 @@ import static org.junit.Assert.assertEquals;
 public class ShorteningTests {
 
     public static final String[][] links = new String[][]{{
+            // aliexpress-search.rule
+            "https://www.aliexpress.com/wholesale?initiative_id=SB_20171104175917&site=glo&g=y&SearchText=mmcx+cable&page=2",
+            "https://www.aliexpress.com/wholesale?SearchText=mmcx+cable&page=2"
+    }, {
             // amazon-global.rule
             "https://www.amazon.co.uk/gp/yourstore/home/ref=nav_cs_ys",
             "https://www.amazon.co.uk/gp/yourstore/home"
