@@ -1,0 +1,4 @@
+{
+    "match": ["https://{lang}.m.wikipedia.org/{end}"],
+    "replace": "https://{lang}.wikipedia.org/{end}"
+}

@@ -31,6 +31,9 @@ public class ShorteningTests {
     }, {    // reddit-comments.rule
             "https://www.reddit.com/r/gaming/comments/2u3lo7/one_of_the_best_things_to_see_in_a_game_after/co521li/?context=10000",
             "https://www.reddit.com/r/gaming/comments/2u3lo7/one_of_the_best_things_to_see_in_a_game_after/co521li?context=10000"
+    }, {    // wikipedia-mobile.rule
+            "https://en.m.wikipedia.org/wiki/Reddit",
+            "https://en.wikipedia.org/wiki/Reddit"
     }, {    // youtube-playlist.rule
             "https://www.youtube.com/watch?v=gd6vFwFeJMY&list=FLFB3guteUc1lCJmnf0Crclg&index=4",
             "https://www.youtube.com/watch?v=gd6vFwFeJMY"
